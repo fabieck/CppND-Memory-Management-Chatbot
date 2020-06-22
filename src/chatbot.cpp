@@ -44,6 +44,69 @@ ChatBot::~ChatBot()
 
 //// STUDENT CODE
 ////
+// Copy constructor
+ChatBot::ChatBot(const ChatBot &source)
+{
+    _image = new wxBitmap(*source._image);
+    _chatLogic = source._chatLogic;
+    _rootNode = source._rootNode;
+
+    std::cout << "COPYING content of instance " << &source << " to instance " << this << std::endl;
+}
+
+//copy assignment operator
+ChatBot& ChatBot::operator=(const ChatBot &source)
+{
+    std::cout << "ASSIGNING content of instance " << &source << " to instance " << this << std::endl;
+    if(this == &source)
+    {
+        return *this;
+    }
+    if(NULL != _image)
+    {
+        delete _image;
+    }
+    _image = new wxBitmap(*source._image);
+    _rootNode = source._rootNode;
+    _chatLogic = source._chatLogic;
+    return *this;
+
+}
+
+//move constructor
+ChatBot::ChatBot(ChatBot &&source)
+{
+    std::cout << "ChatBot Move Constructor " << std::endl;
+    _image = source._image;
+    _rootNode = source._rootNode;
+    _chatLogic = source._chatLogic;
+    _chatLogic->SetChatbotHandle(this);
+    source._image = NULL;
+    source._rootNode = nullptr;
+    source._chatLogic = nullptr;
+
+}
+
+// move assignment operator
+ChatBot& ChatBot::operator=(ChatBot &&source) // 5 : move assignment operator
+{
+    std::cout << "Move Assignment Operator" << std::endl;
+    if (this == &source)
+        return *this;
+    if(NULL != _image)
+    {
+        delete _image;
+    }    _image = source._image;
+    _rootNode = source._rootNode;
+    _chatLogic = source._chatLogic;
+    _chatLogic->SetChatbotHandle(this);
+
+    source._image = NULL;
+    source._rootNode = nullptr;
+    source._chatLogic = nullptr;
+
+    return *this;
+}
 
 ////
 //// EOF STUDENT CODE
@@ -92,7 +155,6 @@ void ChatBot::SetCurrentNode(GraphNode *node)
     std::mt19937 generator(int(std::time(0)));
     std::uniform_int_distribution<int> dis(0, answers.size() - 1);
     std::string answer = answers.at(dis(generator));
-
     // send selected node answer to user
     _chatLogic->SendMessageToUser(answer);
 }
